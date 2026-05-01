@@ -43,6 +43,28 @@ export default function Home() {
   const [playerStartIndex, setPlayerStartIndex] = useState(0);
   const targetRef = useRef<HTMLDivElement>(null);
 
+  // Load URL from localStorage on mount
+  useEffect(() => {
+    const savedUrl = localStorage.getItem("continuReel_url");
+    if (savedUrl) setUrl(savedUrl);
+  }, []);
+
+  // Save URL to localStorage whenever it changes
+  useEffect(() => {
+    if (url.trim()) {
+      localStorage.setItem("continuReel_url", url);
+    }
+  }, [url]);
+
+  function clearUrl() {
+    setUrl("");
+    setResult(null);
+    setUsername(null);
+    setError(null);
+    setWarning(null);
+    localStorage.removeItem("continuReel_url");
+  }
+
   // Scroll to target reel when results load
   useEffect(() => {
     if (result && targetRef.current) {
@@ -131,15 +153,28 @@ export default function Home() {
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
           <div className="flex flex-col gap-3">
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="Paste Instagram reel link..."
-              className="w-full px-4 py-3.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white text-base placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-              disabled={loading}
-              required
-            />
+            <div className="relative">
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="Paste Instagram reel link..."
+                className="w-full px-4 py-3.5 pr-12 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white text-base placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                disabled={loading}
+                required
+              />
+              {url && (
+                <button
+                  type="button"
+                  onClick={clearUrl}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 active:bg-zinc-400 transition-colors"
+                >
+                  <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <select
               value={windowSize}
               onChange={(e) => setWindowSize(Number(e.target.value))}
